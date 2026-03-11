@@ -1,0 +1,5 @@
+.authContainer {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 12fr 6fr;
+}

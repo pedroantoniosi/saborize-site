@@ -1,0 +1,6 @@
+.authContainer {
+    width: 100%;
+    display: grid;
+
+    background-color: red;
+}

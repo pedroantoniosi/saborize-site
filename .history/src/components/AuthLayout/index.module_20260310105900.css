@@ -1,0 +1,15 @@
+.authContainer {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 12fr 6fr;
+    background-color: red;
+
+    & img {
+        max-width: 600px;
+    }
+}
+
+.authLeft {
+    padding: 4rem;
+    background-color: #141414;
+}
