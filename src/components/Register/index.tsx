@@ -1,10 +1,20 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import styles from "./index.module.css";
+import { useForm, type RegisterOptions } from "react-hook-form";
 import Message from "../Message";
 import { Link } from "@tanstack/react-router";
 
-type FormData = {
+interface InputProps {
+  section: "account" | "birthdate";
+  label: string;
+  name: keyof FormData;
+  type: string;
+  placeholder: string;
+  inputClassName: string;
+  labelClassName: string;
+  validation?: RegisterOptions<FormData>;
+}
+
+interface FormData {
   formEmail: string;
   formUsername: string;
   formPassword: string;
@@ -12,14 +22,108 @@ type FormData = {
   formDay: string;
   formMonth: string;
   formYear: string;
-};
+}
+
+const inputClassName = "p-4 bg-neutral-900  rounded-lg w-full border-none";
+const labelClassName = "font-semibold";
+
+const inputs: InputProps[] = [
+  {
+    section: "account",
+    label: "Email",
+    name: "formEmail",
+    type: "email",
+    placeholder: "Digite seu e-mail",
+    inputClassName,
+    labelClassName,
+    validation: {
+      required: "Email é obrigatório",
+    },
+  },
+  {
+    section: "account",
+    label: "Nome do Usuário",
+    name: "formUsername",
+    type: "text",
+    placeholder: "Digite seu nome",
+    inputClassName,
+    labelClassName,
+    validation: {
+      required: "Nome de usuário é obrigatório",
+    },
+  },
+  {
+    section: "account",
+    label: "Senha",
+    name: "formPassword",
+    type: "password",
+    placeholder: "Digite sua senha",
+    inputClassName,
+    labelClassName,
+    validation: {
+      required: "Senha obrigatória",
+      minLength: {
+        value: 6,
+        message: "A senha deve ter no mínimo 6 caracteres",
+      },
+    },
+  },
+  {
+    section: "account",
+    label: "Confirme a senha",
+    name: "formConfirmPassword",
+    type: "password",
+    placeholder: "Confirme sua senha",
+    inputClassName,
+    labelClassName,
+    validation: {
+      required: "Confirme sua senha",
+      validate: (value, values) =>
+        value === values.formPassword || "As senhas não coincidem",
+    },
+  },
+  {
+    section: "birthdate",
+    label: "Dia",
+    name: "formDay",
+    type: "number",
+    placeholder: "DD",
+    inputClassName,
+    labelClassName,
+    validation: {
+      required: "Dia obrigatório",
+    },
+  },
+  {
+    section: "birthdate",
+    label: "Mês",
+    name: "formMonth",
+    type: "number",
+    placeholder: "MM",
+    inputClassName,
+    labelClassName,
+    validation: {
+      required: "Mês obrigatório",
+    },
+  },
+  {
+    section: "birthdate",
+    label: "Ano",
+    name: "formYear",
+    type: "number",
+    placeholder: "AAAA",
+    inputClassName,
+    labelClassName,
+    validation: {
+      required: "Ano obrigatório",
+    },
+  },
+];
 
 export default function Register() {
-  /* React Hook Form */
   const {
     register,
-    handleSubmit, // função do React Hook Form
-    watch,
+    handleSubmit,
     reset,
     formState: { errors },
   } = useForm<FormData>();
@@ -27,8 +131,6 @@ export default function Register() {
   /* estados apenas para mensagens */
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
-
-  const password = watch("formPassword");
 
   /* fecha mensagem automaticamente */
   useEffect(() => {
@@ -43,11 +145,7 @@ export default function Register() {
   }, [message]);
 
   /*
-  ==========================
-  FUNÇÃO DE ENVIO DO FORM
-  ==========================
-  Essa função recebe os dados já validados
-  pelo React Hook Form
+  Recebe os dados já validados pelo React Hook Form
   */
   const onSubmit = async (data: FormData) => {
     if (data.formPassword !== data.formConfirmPassword) {
@@ -94,144 +192,79 @@ export default function Register() {
     }
   };
 
+  const accountInputs = inputs.filter((input) => input.section === "account");
+
+  const birthdateInputs = inputs.filter(
+    (input) => input.section === "birthdate",
+  );
+
   return (
-    <div className={`${styles.registerContainer} auth_form`}>
-      <div className={`${styles.registerRight} auth_content`}>
-        {message && messageType && (
-          <Message
-            text={message}
-            type={messageType}
-            onClose={() => setMessage("")}
-          />
-        )}
+    <div className="flex justify-center items-center  bg-black text-white  min-h-svh">
+      {message && messageType && (
+        <Message
+          text={message}
+          type={messageType}
+          onClose={() => setMessage("")}
+        />
+      )}
 
-        {/* 
-        handleSubmit = função do React Hook Form
-        onSubmit = sua função personalizada
-        */}
-        <form className={styles.registerForm} onSubmit={handleSubmit(onSubmit)}>
-          <div className="col">
-            <label>Email:</label>
-            <input
-              type="text"
-              className={styles.inputForm}
-              {...register("formEmail", {
-                required: "Email é obrigatório",
-              })}
-            />
-            {errors.formEmail && <span>{errors.formEmail.message}</span>}
-          </div>
+      <form
+        className="flex flex-col gap-4 p-4 max-w-[700px]"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <div className="flex flex-col gap-4">
+          {accountInputs.map((input) => (
+            <div key={input.name} className="flex flex-col gap-2">
+              <label className={input.labelClassName}>{input.label}</label>
 
-          <div className="col">
-            <label>Nome do Usuário:</label>
-            <input
-              type="text"
-              className={styles.inputForm}
-              {...register("formUsername", {
-                required: "Nome de usuário é obrigatório",
-              })}
-            />
-            {errors.formUsername && <span>{errors.formUsername.message}</span>}
-          </div>
-
-          <div className="col">
-            <label>Senha:</label>
-            <input
-              type="password"
-              className={styles.inputForm}
-              {...register("formPassword", {
-                required: "Senha obrigatória",
-                minLength: {
-                  value: 6,
-                  message: "A senha deve ter no mínimo 6 caracteres",
-                },
-              })}
-            />
-            {errors.formPassword && <span>{errors.formPassword.message}</span>}
-          </div>
-
-          <div className="col">
-            <label>Confirme a senha:</label>
-            <input
-              type="password"
-              className={styles.inputForm}
-              {...register("formConfirmPassword", {
-                required: "Confirme sua senha",
-                validate: (value) =>
-                  value === password || "As senhas não coincidem",
-              })}
-            />
-            {errors.formConfirmPassword && (
-              <span>{errors.formConfirmPassword.message}</span>
-            )}
-          </div>
-
-          <div className={styles.dateRow}>
-            <div>
-              <label>Dia</label>
               <input
-                type="text"
-                className={styles.inputForm}
-                {...register("formDay", {
-                  required: "Dia obrigatório",
-                })}
+                type={input.type}
+                placeholder={input.placeholder}
+                className={input.inputClassName}
+                {...register(input.name, input.validation)}
               />
-            </div>
 
-            <div>
-              <label>Mês</label>
+              {errors[input.name] && (
+                <span className="text-sm text-red-500">
+                  {errors[input.name]?.message}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="flex  gap-4">
+          {birthdateInputs.map((input) => (
+            <div key={input.name} className="flex flex-col gap-2">
+              <label className={input.labelClassName}>{input.label}</label>
+
               <input
-                type="text"
-                className={styles.inputForm}
-                {...register("formMonth", {
-                  required: "Mês obrigatório",
-                })}
+                type={input.type}
+                placeholder={input.placeholder}
+                className={input.inputClassName}
+                {...register(input.name, input.validation)}
               />
+
+              {errors[input.name] && (
+                <span className="text-sm text-red-500">
+                  {errors[input.name]?.message}
+                </span>
+              )}
             </div>
+          ))}
+        </div>
 
-            <div>
-              <label>Ano</label>
-              <input
-                type="text"
-                className={styles.inputForm}
-                {...register("formYear", {
-                  required: "Ano obrigatório",
-                })}
-              />
-            </div>
-          </div>
-
-          <div className="col  gap-05 py-1">
-            <p className="terms-text">
-              As pessoas que usam nosso serviço podem ter carregado suas
-              informações de contato no Saborize.
-            </p>
-            <p className="terms-text">
-              Ao tocar em <strong className={styles.terms}>Cadastrar</strong>,
-              você concorda em criar uma conta e em{" "}
-              <strong className={styles.terms}>Termos</strong>,{" "}
-              <strong className={styles.terms}>Políticas de Privacidade</strong>{" "}
-              e <strong className={styles.terms}>Política de Cookies</strong>.
-            </p>
-            <p className="terms-text">
-              A{" "}
-              <strong className={styles.terms}>Políticas de Privacidade</strong>{" "}
-              descreve como podemos usar as informações que coletamos quando
-              você cria uma conta. Por exemplo, usamos essas informações para
-              fornecer, personalizar e melhorar nossos produtos, incluindo
-              anúncios.
-            </p>
-          </div>
-
-          <button type="submit" className="btnPrimary">
+        <div className="flex flex-col gap-4  py-8">
+          <button
+            type="submit"
+            className="bg-blue-700 hover:bg-blue-800 p-3 rounded-full cursor-pointer"
+          >
             Cadastrar
           </button>
-
           <Link to="/login" className="col text-center mt-2">
             Já tenho uma conta
           </Link>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 }

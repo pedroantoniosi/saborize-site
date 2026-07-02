@@ -1,0 +1,33 @@
+import styles from "./index.module.css";
+import { Link } from "@tanstack/react-router";
+import logoImg from "../../assets/img/logo.webp";
+
+export default function Login() {
+  return (
+    <div className={`${styles.loginContainer} auth_form`}>
+      <div className={`${styles.loginContent} auth_content`}>
+        <div className={styles.logo}>
+          <img src={logoImg} alt="Logo" fetchPriority="high" decoding="async" />
+        </div>
+        <div className="col text-center">
+          <Link to="/register">Não tem uma conta ainda?</Link>
+        </div>
+        <form className={styles.loginForm}>
+          <div className="col">
+            <label>Email ou Nome de Usuário:</label>
+            <input type="text" />
+          </div>
+
+          <div className="col">
+            <label>Senha:</label>
+            <input type="password" />
+          </div>
+
+          <Link to="/resetPassword" className="col text-center mt-2">
+            Esqueceu sua senha?
+          </Link>
+        </form>
+      </div>
+    </div>
+  );
+}
